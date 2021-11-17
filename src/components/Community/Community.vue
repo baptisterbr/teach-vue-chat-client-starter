@@ -28,10 +28,13 @@
       </div>
     </div>
 
-    <div class="actions">
+    <div v-if="selectedUsers.length" class="actions">
       <button class="ui primary big button" @click="openConversation">
         <i class="conversation icon"></i>
-        <span> Ouvrir la conversation (2) </span>
+        <span v-if="!openingConversation">
+          Ouvrir la conversation ({{ selectedUsers.length }})
+        </span>
+        <span v-else>Ouverture de la conversation...</span>
       </button>
     </div>
   </div>
@@ -47,14 +50,31 @@ export default {
     return {
       searchInput: "",
       selectedUsers: [],
+      openingConversation: false,
     };
   },
   methods: {
-    ...mapActions(["createOneToOneConversation"]),
+    ...mapActions([
+      "createOneToOneConversation",
+      "createManyToManyConversation",
+    ]),
     openConversation() {
-      let promise = this.createOneToOneConversation("Alice");
+      let promise;
+
+      this.openingConversation = true;
+
+      if (this.selectedUsers.length === 1) {
+        promise = this.createOneToOneConversation(
+          this.selectedUsers[0].username
+        );
+      } else {
+        promise = this.createManyToManyConversation(
+          this.selectedUsers.map((user) => user.username)
+        );
+      }
 
       promise.finally(() => {
+        this.openingConversation = false;
         console.log("Conversation ouverte !");
       });
     },
