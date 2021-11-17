@@ -10,12 +10,12 @@ export default new Vuex.Store({
     user: {
       username: null,
       token: null,
-      picture_url: null
+      picture_url: null,
     },
     users: [],
     conversations: [],
     currentConversationId: null,
-    usersAvailable: []
+    usersAvailable: [],
   },
   getters: {
     authenticating(state) {
@@ -28,22 +28,22 @@ export default new Vuex.Store({
       return state.user;
     },
     users(state) {
-      return state.users.map(user => ({
-        ...user
+      return state.users.map((user) => ({
+        ...user,
         //TODO
       }));
     },
     conversations(state) {
-      return state.conversations.map(conversation => {
+      return state.conversations.map((conversation) => {
         return {
-          ...conversation
+          ...conversation,
           //TODO
         };
       });
     },
     conversation(state, getters) {
       //TODO
-    }
+    },
   },
   mutations: {
     syncCurrentConversation(state, conversationId) {
@@ -63,21 +63,21 @@ export default new Vuex.Store({
 
     upsertUser(state, { user }) {
       const localUserIndex = state.users.findIndex(
-        _user => _user.username === user.username
+        (_user) => _user.username === user.username
       );
 
       if (localUserIndex !== -1) {
         Vue.set(state.users, localUserIndex, user);
       } else {
         state.users.push({
-          ...user
+          ...user,
         });
       }
     },
 
     upsertConversation(state, { conversation }) {
       //TODO
-    }
+    },
   },
   actions: {
     authenticate({ commit, dispatch }, { username, password }) {
@@ -87,7 +87,7 @@ export default new Vuex.Store({
       commit("setAuthenticating", true);
       Vue.prototype.$client
         .authenticate(username, password)
-        .then(user => {
+        .then((user) => {
           commit("setUser", user);
           localStorage.setItem("username", username);
           localStorage.setItem("password", password);
@@ -130,11 +130,11 @@ export default new Vuex.Store({
 
         router.push({
           name: "Conversation",
-          params: { id: conversation.id }
+          params: { id: conversation.id },
         });
       });
 
       return promise;
-    }
-  }
+    },
+  },
 });

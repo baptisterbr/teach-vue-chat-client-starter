@@ -4,6 +4,7 @@
       <div class="ui fluid search">
         <div class="ui icon input">
           <input
+            v-model="searchInput"
             class="prompt"
             type="text"
             placeholder="Rechercher un utilisateur"
@@ -14,40 +15,15 @@
       </div>
     </div>
     <div class="users">
-      <div class="selected user">
-        <img src="https://source.unsplash.com/7omHUGhhmZ0/100x100" /><span
-          class=""
-          >Bob</span
-        >
-      </div>
-      <div class="user">
-        <img src="https://source.unsplash.com/8wbxjJBrl3k/100x100" /><span
-          class=""
-          >Cha</span
-        >
-      </div>
-      <div class="user">
-        <img src="https://source.unsplash.com/FUcupae92P4/100x100" /><span
-          class="available"
-          >Derek</span
-        >
-      </div>
-      <div class="user">
-        <img src="https://source.unsplash.com/4U1x6459Q-s/100x100" /><span
-          class=""
-          >Emilio</span
-        >
-      </div>
-      <div class="selected user">
-        <img src="https://source.unsplash.com/3402kvtHhOo/100x100" /><span
-          class="available"
-          >Fabrice</span
-        >
-      </div>
-      <div class="user">
-        <img src="https://source.unsplash.com/OYH7rc2a3LA/100x100" /><span
-          class=""
-          >Gael</span
+      <div
+        v-for="userObject in filteredUsers"
+        :key="userObject.user.username"
+        :class="userObject.selected === true ? 'selected user' : 'user'"
+        @click="onClickToggleSelected(userObject.user)"
+      >
+        <img :src="userObject.user.picture_url" /><span
+          :class="userObject.user.awake ? 'available' : ''"
+          >{{ userObject.user.username }}</span
         >
       </div>
     </div>
@@ -55,21 +31,23 @@
     <div class="actions">
       <button class="ui primary big button" @click="openConversation">
         <i class="conversation icon"></i>
-        <span>
-          Ouvrir la conversation (2)
-        </span>
+        <span> Ouvrir la conversation (2) </span>
       </button>
     </div>
   </div>
 </template>
 
 <script>
+import Vue from "vue";
 import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "Community",
   data() {
-    return {};
+    return {
+      searchInput: "",
+      selectedUsers: [],
+    };
   },
   methods: {
     ...mapActions(["createOneToOneConversation"]),
@@ -79,11 +57,30 @@ export default {
       promise.finally(() => {
         console.log("Conversation ouverte !");
       });
-    }
+    },
+    onClickToggleSelected(user) {
+      if (!this.selectedUsers.includes(user)) {
+        this.selectedUsers.push(user);
+      } else {
+        this.selectedUsers = this.selectedUsers.filter((u) => u != user);
+      }
+    },
   },
   computed: {
-    ...mapGetters(["users"])
-  }
+    ...mapGetters(["users"]),
+    filteredUsers() {
+      return this.users
+        .filter((user) => {
+          return user.username
+            .toLowerCase()
+            .includes(this.searchInput.toLowerCase());
+        })
+        .map((user) => ({
+          user,
+          selected: this.selectedUsers.includes(user),
+        }));
+    },
+  },
 };
 </script>
 
