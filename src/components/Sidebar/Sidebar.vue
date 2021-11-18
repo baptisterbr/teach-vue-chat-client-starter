@@ -9,9 +9,7 @@
         <div class="user-info-pseudo">{{ user.username }}</div>
 
         <div class="user-info-status ui simple dropdown">
-          <div class="available text">
-            En ligne
-          </div>
+          <div class="available text">En ligne</div>
           <i class="dropdown icon"> </i>
           <div class="menu">
             <div class="item" @click="deauthenticate">
@@ -110,6 +108,39 @@
           <div class="text">Nouvelle conversation</div>
         </div>
       </div>
+      <div
+        v-for="conversationObject in orderedConversations"
+        class="conversation"
+        :key="conversationObject.conversation.id"
+        :title="conversationObject.conversation.title"
+        @click="openConversation(conversationObject.conversation.id)"
+      >
+        <a class="avatar">
+          <img
+            v-if="conversationObject.conversation.type === 'one_to_one'"
+            :src="conversationObject.conversation.id"
+          />
+          <span v-else>
+            <i class="users icon"> </i>
+          </span>
+        </a>
+        <div class="content">
+          <div class="metadata">
+            <div class="title">
+              {{
+                conversationObject.conversation.participants.length > 2
+                  ? "Groupe: " + conversationObject.conversation.participants.join(", ")
+                  : conversationObject.conversation.participants[1]
+              }}
+            </div>
+            <span class="time">{{conversationObject.updated_at}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="TEST">
+        {{ conversations }}
+      </div>
     </div>
   </div>
 </template>
@@ -122,7 +153,7 @@ export default {
   name: "Sidebar",
   data() {
     return {
-      search: ""
+      search: "",
     };
   },
   methods: {
@@ -135,11 +166,18 @@ export default {
     },
     openConversation(id) {
       router.push({ name: "Conversation", params: { id } });
-    }
+    },
   },
   computed: {
-    ...mapGetters(["user", "conversations"])
-  }
+    ...mapGetters(["user", "conversations"]),
+    orderedConversations() {
+      let formatedConversations =  this.conversations.map(
+        (conversation) => ({conversation, updated_at: conversation.updated_at.toString().substring(11, 19)})
+      ).sort((a,b) => {return b.updated_at - a.updated_at});
+      console.log(formatedConversations);
+      return formatedConversations;
+    },
+  },
 };
 </script>
 
