@@ -65,6 +65,12 @@ export default new Vuex.Store({
         conv.participants.includes(user.username)
       );
 
+      const participantsUrls = {};
+
+      users.forEach((user) => {
+        participantsUrls[user.username] = user.picture_url;
+      });
+
       users = users.filter((u) => u.username !== state.user.username);
 
       const title = users.map((user) => user.username).join(", ");
@@ -78,6 +84,7 @@ export default new Vuex.Store({
                 .picture_url,
         conversation_title:
           conv.type === "many_to_many" ? "Groupe: " + title : title,
+        participantsUrls,
       };
     },
   },

@@ -59,6 +59,10 @@
                   message.from === user.username ? 'mine message' : 'message'
                 "
               >
+                <img
+                  :title="message.from"
+                  :src="conversation.participantsUrls[message.from]"
+                />
                 <div class="bubble top bottom">{{ message.content }}</div>
                 <div class="reacts"></div>
                 <div class="controls">
