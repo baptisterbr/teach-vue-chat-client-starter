@@ -46,100 +46,39 @@
           </div>
         </div>
       </div>
-      <div class="conversation new" title="Bob" @click="openConversation(0)">
-        <a class="avatar">
-          <img src="https://source.unsplash.com/7omHUGhhmZ0/100x100" />
-        </a>
-        <div class="content">
-          <div class="metadata">
-            <div class="title"><i class="ui small icon circle"> </i> Bob</div>
-            <span class="time">01:30:58</span>
-          </div>
-          <div class="text">C'est vraiment super Alice !</div>
-        </div>
-      </div>
+
       <div
-        class="conversation"
-        title="Groupe: Gael, Bob"
-        @click="openConversation(0)"
-      >
-        <a class="avatar">
-          <span>
-            <i class="users icon"> </i>
-          </span>
-        </a>
-        <div class="content">
-          <div class="metadata">
-            <div class="title">Groupe: Gael, Bob</div>
-            <span class="time">01:36:38</span>
-          </div>
-          <div class="text">Incroyable !</div>
-        </div>
-      </div>
-      <div
-        class="conversation available"
-        title="Cha"
-        @click="openConversation(0)"
-      >
-        <a class="avatar">
-          <img src="https://source.unsplash.com/8wbxjJBrl3k/100x100" />
-        </a>
-        <div class="content">
-          <div class="metadata">
-            <div class="title"><i class="ui small icon circle"> </i> Cha</div>
-            <span class="time">01:47:50</span>
-          </div>
-          <div class="text">Nouvelle conversation</div>
-        </div>
-      </div>
-      <div
-        class="conversation selected"
-        title="Derek"
-        @click="openConversation(0)"
-      >
-        <a class="avatar">
-          <img src="https://source.unsplash.com/FUcupae92P4/100x100" />
-        </a>
-        <div class="content">
-          <div class="metadata">
-            <div class="title">Derek</div>
-            <span class="time">01:48:00</span>
-          </div>
-          <div class="text">Nouvelle conversation</div>
-        </div>
-      </div>
-      <div
-        v-for="conversationObject in orderedConversations"
-        class="conversation"
-        :key="conversationObject.conversation.id"
-        :title="conversationObject.conversation.title"
-        @click="openConversation(conversationObject.conversation.id)"
+        v-for="conversation in orderedConversations"
+        :class="
+          selectedConversation === conversation.id
+            ? 'selected conversation'
+            : 'conversation'
+        "
+        :key="conversation.id"
+        :title="conversation.title"
+        @click="openConversation(conversation.id)"
       >
         <a class="avatar">
           <img
-            v-if="conversationObject.conversation.type === 'one_to_one'"
-            :src="conversationObject.conversation.id"
+            v-if="conversation.type === 'one_to_one'"
+            :src="conversation.conversation_picture"
           />
           <span v-else>
-            <i class="users icon"> </i>
+            <i class="users icon"></i>
           </span>
         </a>
         <div class="content">
           <div class="metadata">
             <div class="title">
               {{
-                conversationObject.conversation.participants.length > 2
-                  ? "Groupe: " + conversationObject.conversation.participants.join(", ")
-                  : conversationObject.conversation.participants[1]
+                conversation.participants.length > 2
+                  ? "Groupe: " + conversation.participants.join(", ")
+                  : conversation.participants[1]
               }}
             </div>
-            <span class="time">{{conversationObject.updated_at}}</span>
+            <span class="time">{{ formatDate(conversation.updated_at) }}</span>
           </div>
         </div>
-      </div>
-
-      <div id="TEST">
-        {{ conversations }}
       </div>
     </div>
   </div>
@@ -154,6 +93,7 @@ export default {
   data() {
     return {
       search: "",
+      selectedConversation: 0,
     };
   },
   methods: {
@@ -165,15 +105,32 @@ export default {
       router.push({ name: "Search" });
     },
     openConversation(id) {
+      this.selectConversation(id);
+      console.log(this.selectedConversation);
       router.push({ name: "Conversation", params: { id } });
+    },
+    formatDate(input) {
+      if (input) {
+        let date = new Date(input);
+
+        return new Intl.DateTimeFormat("fr-FR", { timeStyle: "medium" }).format(
+          date
+        );
+      }
+      return input;
+    },
+    selectConversation(id) {
+      this.selectedConversation = id;
     },
   },
   computed: {
     ...mapGetters(["user", "conversations"]),
     orderedConversations() {
-      let formatedConversations =  this.conversations.map(
-        (conversation) => ({conversation, updated_at: conversation.updated_at.toString().substring(11, 19)})
-      ).sort((a,b) => {return b.updated_at - a.updated_at});
+      let formatedConversations = this.conversations;
+      formatedConversations = formatedConversations.sort((a, b) => {
+        return new Date(b.updated_at) - new Date(a.updated_at);
+      });
+      console.log(this.conversations);
       console.log(formatedConversations);
       return formatedConversations;
     },

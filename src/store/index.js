@@ -35,9 +35,18 @@ export default new Vuex.Store({
     },
     conversations(state) {
       return state.conversations.map((conversation) => {
+        let users = state.users.filter((user) =>
+          conversation.participants.includes(user.username)
+        );
+
+        console.log("USERS", conversation);
+
         return {
           ...conversation,
-          //TODO
+          conversation_picture:
+            conversation.type === "many_to_many"
+              ? undefined
+              : users.find((user) => user !== state.user).picture_url,
         };
       });
     },
@@ -61,7 +70,7 @@ export default new Vuex.Store({
       state.users = users;
     },
 
-    setConversations(state, conversations){
+    setConversations(state, conversations) {
       state.conversations = conversations;
     },
 
@@ -122,10 +131,10 @@ export default new Vuex.Store({
       });
     },
 
-    fetchConversations({commit}){
-      Vue.prototype.$client.getConversations().then(({conversations})=> {
+    fetchConversations({ commit }) {
+      Vue.prototype.$client.getConversations().then(({ conversations }) => {
         commit("setConversations", conversations);
-      })
+      });
     },
 
     createOneToOneConversation({ commit }, username) {
