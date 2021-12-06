@@ -46,7 +46,8 @@ export default new Vuex.Store({
           conversation_picture:
             conversation.type === "many_to_many"
               ? undefined
-              : users.find((user) => user !== state.user).picture_url,
+              : users.find((user) => user.username !== state.user.username)
+                  .picture_url,
         };
       });
     },
