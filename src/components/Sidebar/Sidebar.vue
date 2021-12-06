@@ -32,6 +32,11 @@
         <br />
         <span>Messages</span>
       </div>
+      <div class="blue button" @click="openInfo">
+        <i class="info icon"> </i>
+        <br />
+        <span>Informations</span>
+      </div>
     </div>
     <div class="conversations">
       <div class="conversation-search">
@@ -39,6 +44,7 @@
           <div class="ui icon input">
             <input
               class="prompt"
+              v-model="searchInput"
               placeholder="Rechercher une conversation"
               type="text"
             />
@@ -48,7 +54,7 @@
       </div>
 
       <div
-        v-for="conversation in orderedConversations"
+        v-for="conversation in filteredConversations"
         :class="
           selectedConversation === conversation.id
             ? 'selected conversation'
@@ -94,6 +100,7 @@ export default {
     return {
       search: "",
       selectedConversation: 0,
+      searchInput: ""
     };
   },
   methods: {
@@ -108,6 +115,9 @@ export default {
       this.selectConversation(id);
       console.log(this.selectedConversation);
       router.push({ name: "Conversation", params: { id } });
+    },
+    openInfo(){
+      router.push({ name: "Informations" });
     },
     formatDate(input) {
       if (input) {
@@ -125,13 +135,17 @@ export default {
   },
   computed: {
     ...mapGetters(["user", "conversations"]),
-    orderedConversations() {
+    filteredConversations() {
       let formatedConversations = this.conversations;
-      formatedConversations = formatedConversations.sort((a, b) => {
+      formatedConversations = formatedConversations
+        .filter(conv =>
+          conv.participants.some(p =>
+            p.toLowerCase().includes(this.searchInput.toLowerCase())
+          )
+        )
+        .sort((a, b) => {
         return new Date(b.updated_at) - new Date(a.updated_at);
       });
-      console.log(this.conversations);
-      console.log(formatedConversations);
       return formatedConversations;
     },
   },
