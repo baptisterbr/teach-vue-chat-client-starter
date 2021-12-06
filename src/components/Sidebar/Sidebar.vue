@@ -76,11 +76,7 @@
         <div class="content">
           <div class="metadata">
             <div class="title">
-              {{
-                conversation.participants.length > 2
-                  ? "Groupe: " + conversation.participants.join(", ")
-                  : conversation.participants[1]
-              }}
+              {{ conversation.conversation_title }}
             </div>
             <span class="time">{{ formatDate(conversation.updated_at) }}</span>
           </div>
@@ -100,7 +96,7 @@ export default {
     return {
       search: "",
       selectedConversation: 0,
-      searchInput: ""
+      searchInput: "",
     };
   },
   methods: {
@@ -116,7 +112,7 @@ export default {
       console.log(this.selectedConversation);
       router.push({ name: "Conversation", params: { id } });
     },
-    openInfo(){
+    openInfo() {
       router.push({ name: "Informations" });
     },
     formatDate(input) {
@@ -138,14 +134,14 @@ export default {
     filteredConversations() {
       let formatedConversations = this.conversations;
       formatedConversations = formatedConversations
-        .filter(conv =>
-          conv.participants.some(p =>
+        .filter((conv) =>
+          conv.participants.some((p) =>
             p.toLowerCase().includes(this.searchInput.toLowerCase())
           )
         )
         .sort((a, b) => {
-        return new Date(b.updated_at) - new Date(a.updated_at);
-      });
+          return new Date(b.updated_at) - new Date(a.updated_at);
+        });
       return formatedConversations;
     },
   },

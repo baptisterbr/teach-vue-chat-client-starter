@@ -19,7 +19,7 @@ export default function install(Vue, store) {
   if (username && password) {
     store.dispatch("authenticate", {
       username,
-      password
+      password,
     });
   }
 
@@ -48,7 +48,7 @@ export default function install(Vue, store) {
   });
 
   client.on("conversationSeen", async ({ conversation }) => {
-    //TODO
+    store.commit("upsertConversation", { conversation });
   });
 
   client.on("messageReacted", async ({ conversation_id, message }) => {

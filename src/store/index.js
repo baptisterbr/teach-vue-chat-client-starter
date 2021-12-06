@@ -41,6 +41,9 @@ export default new Vuex.Store({
 
         console.log("USERS", conversation);
 
+        users = users.filter((u) => u.username !== state.user.username);
+        const title = users.map((user) => user.username).join(", ");
+
         return {
           ...conversation,
           conversation_picture:
@@ -48,24 +51,34 @@ export default new Vuex.Store({
               ? undefined
               : users.find((user) => user.username !== state.user.username)
                   .picture_url,
+          conversation_title:
+            conversation.type === "many_to_many" ? "Groupe: " + title : title,
         };
       });
     },
     conversation(state, getters) {
-      
-      let conv = state.conversations.find(c => c.id === state.currentConversationId);
-      
+      let conv = state.conversations.find(
+        (c) => c.id === state.currentConversationId
+      );
+
       let users = state.users.filter((user) =>
         conv.participants.includes(user.username)
-        );
+      );
+
+      users = users.filter((u) => u.username !== state.user.username);
+
+      const title = users.map((user) => user.username).join(", ");
 
       return {
         ...conv,
-        conversation_picture: conv.type === "many_to_many"
-        ? undefined
-        : users.find((user) => user.username !== state.user.username)
-            .picture_url,
-      }
+        conversation_picture:
+          conv.type === "many_to_many"
+            ? undefined
+            : users.find((user) => user.username !== state.user.username)
+                .picture_url,
+        conversation_title:
+          conv.type === "many_to_many" ? "Groupe: " + title : title,
+      };
     },
   },
   mutations: {
@@ -103,26 +116,33 @@ export default new Vuex.Store({
     },
 
     upsertConversation(state, { conversation }) {
-      //TODO
-    },
-    upsertMessage(state, {conversation_id, message}){
-      const conv = state.conversations.find(c => c.id === conversation_id);
+      const localConversationIndex = state.conversations.findIndex(
+        (conv) => conv.id === conversation.id
+      );
 
-      let messageIndex = conv.messages.findIndex(m => m.id === message.id);
-
-      if(messageIndex !== -1){
-        conv.messages[messageIndex] = message;
+      if (localConversationIndex !== -1) {
+        Vue.set(state.conversations, localConversationIndex, conversation);
+        console.log("Vue.set");
       } else {
-
-        if(conv.messages === undefined){
-          conv.messages = [];
-        }
-
-        conv.messages.push(message);
+        state.conversations.push({
+          ...conversation,
+        });
+        console.log("push");
       }
-      console.log("STATE",state.conversations.find(c => c.id === conversation_id).messages);
-      console.log("CONV",conv.messages);
-    }
+
+      console.log("CONVERSATIONS", state.conversations);
+    },
+    upsertMessage(state, { conversation_id, message }) {
+      const conv = state.conversations.find((c) => c.id === conversation_id);
+
+      const messageIndex = conv.messages.findIndex((m) => m.id === message.id);
+
+      if (messageIndex !== -1) {
+        Vue.set(conv.messages, messageIndex, message);
+      } else {
+        conv.messages.push({ ...message });
+      }
+    },
   },
   actions: {
     authenticate({ commit, dispatch }, { username, password }) {
