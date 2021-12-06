@@ -6,13 +6,21 @@
       <!--        src="https://source.unsplash.com/FUcupae92P4/100x100"-->
       <!--      />-->
       <div class="avatar">
-        <i class="ui users icon"></i>
-      </div>
+          <span v-if="conversation.type === 'one_to_one'"><img
+            
+            :src="conversation.conversation_picture"
+          /></span>
+          <span v-else>
+            <i class="users icon"></i>
+          </span>
+        </div>
 
       <div class="title">
         <div class="ui compact">
           <i class="icon circle"></i>
-          <span>Groupe: Alice, Bob</span>
+          <span>{{conversation.participants.length > 2
+                  ? "Groupe: " + conversation.participants.join(", ")
+                  : conversation.participants[1]}}</span>
           <div class="ui simple dropdown item">
             <i class="vertical ellipsis icon"></i>
 

@@ -52,7 +52,20 @@ export default new Vuex.Store({
       });
     },
     conversation(state, getters) {
-      //TODO
+      
+      let conv = state.conversations.find(c => c.id === state.currentConversationId);
+      
+      let users = state.users.filter((user) =>
+        conv.participants.includes(user.username)
+        );
+
+      return {
+        ...conv,
+        conversation_picture: conv.type === "many_to_many"
+        ? undefined
+        : users.find((user) => user.username !== state.user.username)
+            .picture_url,
+      }
     },
   },
   mutations: {
@@ -92,6 +105,24 @@ export default new Vuex.Store({
     upsertConversation(state, { conversation }) {
       //TODO
     },
+    upsertMessage(state, {conversation_id, message}){
+      const conv = state.conversations.find(c => c.id === conversation_id);
+
+      let messageIndex = conv.messages.findIndex(m => m.id === message.id);
+
+      if(messageIndex !== -1){
+        conv.messages[messageIndex] = message;
+      } else {
+
+        if(conv.messages === undefined){
+          conv.messages = [];
+        }
+
+        conv.messages.push(message);
+      }
+      console.log("STATE",state.conversations.find(c => c.id === conversation_id).messages);
+      console.log("CONV",conv.messages);
+    }
   },
   actions: {
     authenticate({ commit, dispatch }, { username, password }) {
