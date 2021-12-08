@@ -14,7 +14,21 @@
       <span>Participants</span>
       <hr />
     </div>
-    <div class="user">
+    <div
+      v-for="participant in conversation.participants"
+      :key="participant"
+      class="user"
+    >
+      <img :src="conversation.participantsUrls[participant]" /><span
+        ><br />{{ participant }}<i class="nickname"></i></span
+      ><i title="Modifier le surnom" class="circular quote left link icon"></i
+      ><i
+        title="Enlever de la conversation"
+        class="circular times icon link"
+        style=""
+      ></i>
+    </div>
+    <!-- <div class="user">
       <img src="https://source.unsplash.com/mK_sjD0FrXw/100x100" /><span
         >Alice<br /><i class="nickname"></i></span
       ><i title="Modifier le surnom" class="circular quote left link icon"></i
@@ -52,7 +66,7 @@
         class="circular times icon link"
         style=""
       ></i>
-    </div>
+    </div> -->
     <div class="spanner">
       <hr />
       <span>Communauté</span>
@@ -86,17 +100,20 @@ import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "Group",
+  props: {
+    conversation: Object,
+  },
   data() {
     return {
-      search: ""
+      search: "",
     };
   },
   computed: {
-    ...mapGetters([])
+    ...mapGetters([]),
   },
   methods: {
-    ...mapActions([])
-  }
+    ...mapActions([]),
+  },
 };
 </script>
 

@@ -121,7 +121,7 @@
         </div>
       </div>
       <div class="conversation-sidebar" v-if="groupPanel">
-        <Group />
+        <Group :conversation="conversation" />
       </div>
     </div>
   </div>
