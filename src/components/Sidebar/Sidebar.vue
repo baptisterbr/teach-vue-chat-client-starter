@@ -109,7 +109,6 @@ export default {
     },
     openConversation(id) {
       this.selectConversation(id);
-      console.log(this.selectedConversation);
       router.push({ name: "Conversation", params: { id } });
     },
     openInfo() {

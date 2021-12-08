@@ -229,5 +229,12 @@ export default new Vuex.Store({
 
       return promise;
     },
+    postMessage({ commit }, { conversation_id, content }) {
+      console.log(conversation_id, content);
+      const promise = Vue.prototype.$client.postMessage(
+        conversation_id,
+        content
+      );
+    },
   },
 });

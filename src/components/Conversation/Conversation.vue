@@ -52,25 +52,34 @@
       <div class="conversation-main">
         <div class="conversation-body" id="scroll">
           <div class="wrapper">
-            <div v-for="message in conversation.messages" :key="message.id">
-              <div class="time">{{ formatDate(message.posted_at) }}</div>
+            <div
+              v-for="(message, index) in conversation.messages"
+              :key="message.id"
+            >
               <div
-                :class="
-                  message.from === user.username ? 'mine message' : 'message'
+                v-if="
+                  (index > 0 &&
+                    conversation.messages[index - 1].from !== message.from) ||
+                  index === 0
                 "
               >
-                <img
-                  :title="message.from"
-                  :src="conversation.participantsUrls[message.from]"
+                <div class="time">{{ formatDate(message.posted_at) }}</div>
+                <Message
+                  :mine="message.from === user.username"
+                  :sender="message.from"
+                  :content="message.content"
+                  :position="getMessageStyle(conversation.messages, index)"
+                  :url="conversation.participantsUrls[message.from]"
                 />
-                <div class="bubble top bottom">{{ message.content }}</div>
-                <div class="reacts"></div>
-                <div class="controls">
-                  <i title="Supprimer" class="circular trash icon"></i
-                  ><i title="Editer" class="circular edit icon"></i
-                  ><i title="Répondre" class="circular reply icon"></i>
-                </div>
               </div>
+              <Message
+                v-else
+                :mine="message.from === user.username"
+                :sender="message.from"
+                :content="message.content"
+                :position="getMessageStyle(conversation.messages, index)"
+                :url="conversation.participantsUrls[message.from]"
+              />
             </div>
 
             <div class="view">
@@ -99,9 +108,11 @@
             <div class="ui fluid search">
               <div class="ui icon input">
                 <input
+                  v-model="messageInput"
                   class="prompt"
                   type="text"
                   placeholder="Rédiger un message"
+                  @keypress.enter="sendMessage"
                 />
                 <i class="send icon"></i>
               </div>
@@ -119,13 +130,15 @@
 <script>
 import Group from "@/components/Group/Group";
 import { mapActions, mapGetters } from "vuex";
+import Message from "./Message/Message.vue";
 
 export default {
   name: "Conversation",
-  components: { Group },
+  components: { Group, Message },
   data() {
     return {
       groupPanel: false,
+      messageInput: "",
     };
   },
   mounted() {
@@ -138,7 +151,7 @@ export default {
     ...mapGetters(["user", "conversation"]),
   },
   methods: {
-    ...mapActions([]),
+    ...mapActions(["postMessage"]),
     scrollBottom() {
       setTimeout(() => {
         let scrollElement = document.querySelector("#scroll");
@@ -157,6 +170,48 @@ export default {
         );
       }
       return input;
+    },
+    getMessageStyle(messages, id) {
+      if (
+        messages != null &&
+        id != null &&
+        messages.length >= id &&
+        messages.length > 1
+      ) {
+        const currentMessage = messages[id];
+        if (id > 0 && id < messages.length - 1) {
+          const previousMessage = messages[id - 1];
+          const nextMessage = messages[id + 1];
+          if (
+            previousMessage.from === currentMessage.from &&
+            currentMessage.from === nextMessage.from
+          ) {
+            return "middle";
+          } else if (previousMessage.from !== currentMessage.from) {
+            return "top";
+          } else {
+            return "bottom";
+          }
+        } else {
+          if (id === 0) {
+            return "top";
+          } else {
+            return "bottom";
+          }
+        }
+      } else {
+        return "top bottom";
+      }
+    },
+    sendMessage() {
+      if (this.messageInput) {
+        console.log(this.conversation, this.messageInput);
+        this.postMessage({
+          conversation_id: this.conversation.id,
+          content: this.messageInput,
+        });
+        this.messageInput = "";
+      }
     },
   },
   watch: {
