@@ -3,6 +3,7 @@
     <div class="ui fluid search">
       <div class="ui icon input">
         <input
+          v-model="searchInput"
           type="text"
           placeholder="Rechercher un utilisateur"
           class="prompt"
@@ -15,104 +16,97 @@
       <hr />
     </div>
     <div
-      v-for="participant in conversation.participants"
-      :key="participant"
+      v-for="participant in participants"
+      :key="participant.username"
       class="user"
     >
-      <img :src="conversation.participantsUrls[participant]" /><span
-        ><br />{{ participant }}<i class="nickname"></i></span
+      <img :src="participant.picture_url" /><span
+        ><br />{{ participant.username }}<i class="nickname"></i></span
       ><i title="Modifier le surnom" class="circular quote left link icon"></i
       ><i
+        @click="clickRemoveParticipant(participant.username)"
         title="Enlever de la conversation"
         class="circular times icon link"
         style=""
       ></i>
     </div>
-    <!-- <div class="user">
-      <img src="https://source.unsplash.com/mK_sjD0FrXw/100x100" /><span
-        >Alice<br /><i class="nickname"></i></span
-      ><i title="Modifier le surnom" class="circular quote left link icon"></i
-      ><i
-        title="Enlever de la conversation"
-        class="circular times icon link"
-        style=""
-      ></i>
-    </div>
-    <div class="user">
-      <img src="https://source.unsplash.com/7omHUGhhmZ0/100x100" /><span
-        >Bob<br /><i class="nickname"></i></span
-      ><i title="Modifier le surnom" class="circular quote left link icon"></i
-      ><i
-        title="Enlever de la conversation"
-        class="circular times icon link"
-        style=""
-      ></i>
-    </div>
-    <div class="user">
-      <img src="https://source.unsplash.com/FUcupae92P4/100x100" /><span
-        >Derek<br /><i class="nickname"></i></span
-      ><i title="Modifier le surnom" class="circular quote left link icon"></i
-      ><i
-        title="Enlever de la conversation"
-        class="circular times icon link"
-      ></i>
-    </div>
-    <div class="user">
-      <img src="https://source.unsplash.com/OYH7rc2a3LA/100x100" /><span
-        >Gael<br /><i class="nickname"></i></span
-      ><i title="Modifier le surnom" class="circular quote left link icon"></i
-      ><i
-        title="Enlever de la conversation"
-        class="circular times icon link"
-        style=""
-      ></i>
-    </div> -->
     <div class="spanner">
       <hr />
       <span>Communauté</span>
       <hr />
     </div>
-    <div class="user">
-      <img src="https://source.unsplash.com/8wbxjJBrl3k/100x100" /><span
-        >Cha</span
-      ><i title="Ajouter à la conversation" class="circular plus icon link"></i>
-    </div>
-    <div class="user">
-      <img src="https://source.unsplash.com/4U1x6459Q-s/100x100" /><span
-        >Emilio</span
-      ><i title="Ajouter à la conversation" class="circular plus icon link"></i>
-    </div>
-    <div class="user">
-      <img src="https://source.unsplash.com/3402kvtHhOo/100x100" /><span
-        >Fabrice</span
-      ><i title="Ajouter à la conversation" class="circular plus icon link"></i>
-    </div>
-    <div class="user">
-      <img src="https://source.unsplash.com/tNCH0sKSZbA/100x100" /><span
-        >Benji</span
-      ><i title="Ajouter à la conversation" class="circular plus icon link"></i>
+    <div v-for="user in community" :key="user.username" class="user">
+      <img :src="user.picture_url" /><span>{{ user.username }}</span
+      ><i
+        title="Ajouter à la conversation"
+        class="circular plus icon link"
+        @click="clickAddParticipant(user.username)"
+      ></i>
     </div>
   </div>
 </template>
 
 <script>
+import router from "@/router";
 import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "Group",
-  props: {
-    conversation: Object,
-  },
   data() {
     return {
-      search: "",
+      searchInput: "",
     };
   },
   computed: {
-    ...mapGetters([]),
+    ...mapGetters(["conversation", "users", "user"]),
+    filteredUsers() {
+      return this.users.filter((user) => {
+        return user.username
+          .toLowerCase()
+          .includes(this.searchInput.toLowerCase());
+      });
+    },
+    community() {
+      console.log("community");
+      const communityArray = [];
+      this.filteredUsers.map((user) => {
+        if (
+          this.conversation.participants.find((u) => u === user.username) ==
+          null
+        ) {
+          communityArray.push(user);
+        }
+      });
+      return communityArray;
+    },
+    participants() {
+      console.log("participants");
+      const participantsArray = [];
+      this.filteredUsers.map((user) => {
+        if (
+          this.conversation.participants.find((u) => u === user.username) !=
+          null
+        ) {
+          participantsArray.push(user);
+        }
+      });
+      return participantsArray;
+    },
   },
   methods: {
-    ...mapActions([]),
+    ...mapActions(["addParticipant", "removeParticipant"]),
+    clickAddParticipant(username) {
+      this.addParticipant({ conversation_id: this.conversation.id, username });
+    },
+    clickRemoveParticipant(username) {
+      this.removeParticipant({
+        conversation_id: this.conversation.id,
+        username,
+      });
+      if (username === this.user.username) {
+        router.push({ name: "Community" });
+      }
+    },
   },
 };
 </script>

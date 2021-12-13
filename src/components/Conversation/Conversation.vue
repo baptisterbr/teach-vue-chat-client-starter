@@ -13,7 +13,6 @@
           <i class="users icon"></i>
         </span>
       </div>
-
       <div class="title">
         <div class="ui compact">
           <i class="icon circle"></i>
@@ -121,7 +120,7 @@
         </div>
       </div>
       <div class="conversation-sidebar" v-if="groupPanel">
-        <Group :conversation="conversation" />
+        <Group />
       </div>
     </div>
   </div>
@@ -205,7 +204,6 @@ export default {
     },
     sendMessage() {
       if (this.messageInput) {
-        console.log(this.conversation, this.messageInput);
         this.postMessage({
           conversation_id: this.conversation.id,
           content: this.messageInput,

@@ -39,8 +39,6 @@ export default new Vuex.Store({
           conversation.participants.includes(user.username)
         );
 
-        console.log("USERS", conversation);
-
         users = users.filter((u) => u.username !== state.user.username);
         const title = users.map((user) => user.username).join(", ");
 
@@ -129,15 +127,15 @@ export default new Vuex.Store({
 
       if (localConversationIndex !== -1) {
         Vue.set(state.conversations, localConversationIndex, conversation);
-        console.log("Vue.set");
       } else {
         state.conversations.push({
           ...conversation,
         });
-        console.log("push");
       }
 
-      console.log("CONVERSATIONS", state.conversations);
+      state.conversations = state.conversations.filter((conversation) =>
+        conversation.participants.includes(state.user.username)
+      );
     },
     upsertMessage(state, { conversation_id, message }) {
       const conv = state.conversations.find((c) => c.id === conversation_id);
@@ -230,10 +228,21 @@ export default new Vuex.Store({
       return promise;
     },
     postMessage({ commit }, { conversation_id, content }) {
-      console.log(conversation_id, content);
       const promise = Vue.prototype.$client.postMessage(
         conversation_id,
         content
+      );
+    },
+    addParticipant({ commit }, { conversation_id, username }) {
+      const promise = Vue.prototype.$client.addParticipant(
+        conversation_id,
+        username
+      );
+    },
+    removeParticipant({ commit }, { conversation_id, username }) {
+      const promise = Vue.prototype.$client.removeParticipant(
+        conversation_id,
+        username
       );
     },
   },

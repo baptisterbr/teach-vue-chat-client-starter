@@ -87,13 +87,16 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["users"]),
+    ...mapGetters(["users", "user"]),
     filteredUsers() {
       return this.users
         .filter((user) => {
-          return user.username
-            .toLowerCase()
-            .includes(this.searchInput.toLowerCase());
+          return (
+            user.username
+              .toLowerCase()
+              .includes(this.searchInput.toLowerCase()) &&
+            user.username !== this.user.username
+          );
         })
         .map((user) => ({
           user,
