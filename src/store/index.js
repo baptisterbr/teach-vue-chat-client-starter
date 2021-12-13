@@ -148,6 +148,16 @@ export default new Vuex.Store({
         conv.messages.push({ ...message });
       }
     },
+    deleteMessage(state, { conversation_id, message_id }) {
+      const conv = state.conversations.find((c) => c.id === conversation_id);
+      const message = conv.messages.find(
+        (message) => (message.id = message_id)
+      );
+
+      if (message != null) {
+        Vue.set(message, message.deleted, true);
+      }
+    },
   },
   actions: {
     authenticate({ commit, dispatch }, { username, password }) {
@@ -243,6 +253,20 @@ export default new Vuex.Store({
       const promise = Vue.prototype.$client.removeParticipant(
         conversation_id,
         username
+      );
+    },
+    replyMessage({ commit }, { conversation_id, message_id, content }) {
+      const promise = Vue.prototype.$client.replyMessage(
+        conversation_id,
+        message_id,
+        content
+      );
+    },
+    deleteMessage({ commit }, { conversation_id, message_id }) {
+      console.log("deleting message");
+      const promise = Vue.prototype.$client.deleteMessage(
+        conversation_id,
+        message_id
       );
     },
   },

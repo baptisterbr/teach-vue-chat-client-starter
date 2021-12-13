@@ -51,6 +51,7 @@
       <div class="conversation-main">
         <div class="conversation-body" id="scroll">
           <div class="wrapper">
+            {{ conversation.messages }}
             <div
               v-for="(message, index) in conversation.messages"
               :key="message.id"
@@ -63,21 +64,18 @@
                 "
               >
                 <div class="time">{{ formatDate(message.posted_at) }}</div>
-                <Message
-                  :mine="message.from === user.username"
-                  :sender="message.from"
-                  :content="message.content"
-                  :position="getMessageStyle(conversation.messages, index)"
-                  :url="conversation.participantsUrls[message.from]"
-                />
               </div>
               <Message
-                v-else
+                :message="message"
                 :mine="message.from === user.username"
                 :sender="message.from"
                 :content="message.content"
                 :position="getMessageStyle(conversation.messages, index)"
                 :url="conversation.participantsUrls[message.from]"
+                :reactions="message.reactions"
+                :reply="message.reply_to"
+                @clickReponse="setReply"
+                @clickDelete="delMessage"
               />
             </div>
 
@@ -93,15 +91,19 @@
           </div>
         </div>
 
-        <div class="typing">
+        <!-- <div class="typing">
           <div class="wrapper">Alice est en train d'écrire...</div>
-        </div>
+        </div> -->
         <div class="conversation-footer">
           <div class="wrapper">
-            <p>
-              <i title="Abandonner" class="circular times small icon link"></i>
-              Répondre à Alice :
-              <span> On peut même éditer ou supprimer des messages ! </span>
+            <p v-if="Object.keys(reply).length">
+              <i
+                title="Abandonner"
+                class="circular times small icon link"
+                @click="setReply({})"
+              ></i>
+              Répondre à {{ reply.from }} :
+              <span> {{ reply.content }} </span>
             </p>
 
             <div class="ui fluid search">
@@ -138,6 +140,7 @@ export default {
     return {
       groupPanel: false,
       messageInput: "",
+      reply: {},
     };
   },
   mounted() {
@@ -150,7 +153,7 @@ export default {
     ...mapGetters(["user", "conversation"]),
   },
   methods: {
-    ...mapActions(["postMessage"]),
+    ...mapActions(["postMessage", "replyMessage", "deleteMessage"]),
     scrollBottom() {
       setTimeout(() => {
         let scrollElement = document.querySelector("#scroll");
@@ -204,12 +207,32 @@ export default {
     },
     sendMessage() {
       if (this.messageInput) {
-        this.postMessage({
-          conversation_id: this.conversation.id,
-          content: this.messageInput,
-        });
+        if (Object.keys(this.reply).length) {
+          this.replyMessage({
+            conversation_id: this.conversation.id,
+            message_id: this.reply.id,
+            content: this.messageInput,
+          });
+        } else {
+          this.postMessage({
+            conversation_id: this.conversation.id,
+            content: this.messageInput,
+          });
+        }
+
         this.messageInput = "";
+        this.setReply({});
       }
+    },
+    setReply(message) {
+      this.reply = message;
+    },
+    delMessage(message) {
+      console.log(message);
+      this.deleteMessage({
+        conversation_id: this.conversation.id,
+        message_id: message.id,
+      });
     },
   },
   watch: {
