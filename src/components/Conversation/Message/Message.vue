@@ -1,6 +1,10 @@
 <template>
   <div :class="mine === true ? 'mine message' : 'message'">
-    <img :title="message.from" :src="url" />
+    <img
+      v-if="!mine && position.includes('bottom')"
+      :title="message.from"
+      :src="url"
+    />
     <div :class="position + ' bubble'">
       <div v-if="message.deleted" class="deleted-message">
         Ce message a été supprimé

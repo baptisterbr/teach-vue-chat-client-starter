@@ -241,6 +241,7 @@ export default {
 
         this.messageInput = "";
         this.setReply({});
+        this.setEdit({});
       }
     },
     setReply(message) {

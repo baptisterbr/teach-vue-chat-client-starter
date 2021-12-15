@@ -73,6 +73,8 @@ export default new Vuex.Store({
 
       const title = users.map((user) => user.username).join(", ");
 
+      const messages = conv.messages.map((m) => m);
+
       return {
         ...conv,
         conversation_picture:
@@ -83,6 +85,7 @@ export default new Vuex.Store({
         conversation_title:
           conv.type === "many_to_many" ? "Groupe: " + title : title,
         participantsUrls,
+        messages: messages,
       };
     },
   },
@@ -150,19 +153,26 @@ export default new Vuex.Store({
     },
     deleteMessage(state, { conversation_id, message_id }) {
       const conv = state.conversations.find((c) => c.id === conversation_id);
-      const message = conv.messages.find(
-        (message) => (message.id = message_id)
+
+      const messageIndex = conv.messages.findIndex(
+        (message) => message.id === message_id
       );
+
+      const message = conv.messages[messageIndex];
 
       message.deleted = true;
 
-      message.reactions = [];
-
-      console.log(message);
-
-      if (message != null) {
-        Vue.set(conv.messages, message_id, message);
+      if (messageIndex !== -1) {
+        Vue.set(conv.messages, messageIndex, message);
       }
+
+      // if (message != null) {
+      //   Vue.set(
+      //     conv.messages,
+      //     conv.messages.findIndex((m) => (m.id = message_id)),
+      //     message
+      //   );
+      // }
 
       state.conversations = state.conversations.filter((conversation) =>
         conversation.participants.includes(state.user.username)
@@ -220,10 +230,6 @@ export default new Vuex.Store({
       );
 
       promise.then(({ conversation }) => {
-        // commit("upsertConversation", {
-        //   conversation
-        // });
-
         router.push({
           name: "Conversation",
           params: { id: conversation.id },
