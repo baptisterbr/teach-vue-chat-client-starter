@@ -73,6 +73,7 @@
                 :reply="message.reply_to"
                 @clickReponse="setReply"
                 @clickDelete="delMessage"
+                @clickEdit="setEdit"
               />
             </div>
 
@@ -101,6 +102,15 @@
               ></i>
               Répondre à {{ reply.from }} :
               <span> {{ reply.content }} </span>
+            </p>
+
+            <p v-else-if="Object.keys(edit).length">
+              <i
+                title="Abandonner"
+                class="circular times small icon link"
+                @click="setEdit({})"
+              ></i>
+              Edition
             </p>
 
             <div class="ui fluid search">
@@ -138,6 +148,7 @@ export default {
       groupPanel: false,
       messageInput: "",
       reply: {},
+      edit: {},
     };
   },
   mounted() {
@@ -150,7 +161,12 @@ export default {
     ...mapGetters(["user", "conversation"]),
   },
   methods: {
-    ...mapActions(["postMessage", "replyMessage", "deleteMessage"]),
+    ...mapActions([
+      "postMessage",
+      "replyMessage",
+      "deleteMessage",
+      "editMessage",
+    ]),
     scrollBottom() {
       setTimeout(() => {
         let scrollElement = document.querySelector("#scroll");
@@ -210,6 +226,12 @@ export default {
             message_id: this.reply.id,
             content: this.messageInput,
           });
+        } else if (Object.keys(this.edit).length) {
+          this.editMessage({
+            conversation_id: this.conversation.id,
+            message_id: this.edit.id,
+            content: this.messageInput,
+          });
         } else {
           this.postMessage({
             conversation_id: this.conversation.id,
@@ -230,6 +252,10 @@ export default {
         conversation_id: this.conversation.id,
         message_id: message.id,
       });
+    },
+    setEdit(message) {
+      this.edit = message;
+      this.messageInput = message.content;
     },
   },
   watch: {

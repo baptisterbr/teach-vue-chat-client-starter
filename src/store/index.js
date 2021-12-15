@@ -279,5 +279,13 @@ export default new Vuex.Store({
         message_id
       );
     },
+    editMessage({ commit }, { conversation_id, message_id, content }) {
+      console.log("editing message");
+      const promise = Vue.prototype.$client.editMessage(
+        conversation_id,
+        message_id,
+        content
+      );
+    },
   },
 });

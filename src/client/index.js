@@ -56,7 +56,7 @@ export default function install(Vue, store) {
   });
 
   client.on("messageEdited", async ({ conversation_id, message }) => {
-    //TODO
+    store.commit("upsertMessage", { conversation_id, message });
   });
 
   client.on("messageDeleted", async ({ conversation_id, message_id }) => {

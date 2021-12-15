@@ -39,7 +39,11 @@
         class="circular trash icon"
         @click="$emit('clickDelete', message)"
       ></i
-      ><i title="Editer" class="circular edit icon"></i
+      ><i
+        title="Editer"
+        class="circular edit icon"
+        @click="$emit('clickEdit', message)"
+      ></i
       ><i
         title="Répondre"
         class="circular reply icon"
