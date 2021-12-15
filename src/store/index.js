@@ -154,9 +154,19 @@ export default new Vuex.Store({
         (message) => (message.id = message_id)
       );
 
+      message.deleted = true;
+
+      message.reactions = [];
+
+      console.log(message);
+
       if (message != null) {
-        Vue.set(message, message.deleted, true);
+        Vue.set(conv.messages, message_id, message);
       }
+
+      state.conversations = state.conversations.filter((conversation) =>
+        conversation.participants.includes(state.user.username)
+      );
     },
   },
   actions: {

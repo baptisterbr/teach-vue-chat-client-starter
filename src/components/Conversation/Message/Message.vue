@@ -1,13 +1,20 @@
 <template>
   <div :class="mine === true ? 'mine message' : 'message'">
-    <img :title="sender" :src="url" />
+    <img :title="message.from" :src="url" />
     <div :class="position + ' bubble'">
-      <p v-if="reply != null" class="reply_content">{{ reply.content }}</p>
-      {{ content }}
+      <div v-if="message.deleted" class="deleted-message">
+        Ce message a été supprimé
+      </div>
+      <div v-else>
+        <p v-if="message.reply_to != null" class="reply_content">
+          {{ reply.content }}
+        </p>
+        {{ message.content }}
+      </div>
     </div>
     <div class="reacts">
       <i
-        v-for="reaction in messageReactions"
+        v-for="reaction in message.reactions"
         :key="reaction.name"
         :class="'circular ' + getReactionClass(reaction.name) + ' outline icon'"
         >{{ reaction.count }}</i
@@ -48,13 +55,9 @@ export default {
   props: {
     message: Object,
     mine: Boolean,
-    sender: String,
-    content: String,
     position: String,
     url: String,
-    reactions: Object,
     reply: Object,
-    reponse: Function,
   },
   computed: {
     messageReactions() {

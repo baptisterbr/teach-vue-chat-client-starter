@@ -51,10 +51,10 @@
       <div class="conversation-main">
         <div class="conversation-body" id="scroll">
           <div class="wrapper">
-            {{ conversation.messages }}
+            {{ conversation }}
             <div
               v-for="(message, index) in conversation.messages"
-              :key="message.id"
+              :key="message.posted_at"
             >
               <div
                 v-if="
@@ -68,11 +68,8 @@
               <Message
                 :message="message"
                 :mine="message.from === user.username"
-                :sender="message.from"
-                :content="message.content"
                 :position="getMessageStyle(conversation.messages, index)"
                 :url="conversation.participantsUrls[message.from]"
-                :reactions="message.reactions"
                 :reply="message.reply_to"
                 @clickReponse="setReply"
                 @clickDelete="delMessage"
