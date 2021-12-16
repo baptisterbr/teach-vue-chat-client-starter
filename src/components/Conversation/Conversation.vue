@@ -15,7 +15,7 @@
       </div>
       <div class="title">
         <div class="ui compact">
-          <i class="icon circle"></i>
+          <i v-if="conversation.awake" class="icon circle"></i>
           <span>{{ conversation.conversation_title }}</span>
           <div class="ui simple dropdown item">
             <i class="vertical ellipsis icon"></i>
@@ -51,7 +51,6 @@
       <div class="conversation-main">
         <div class="conversation-body" id="scroll">
           <div class="wrapper">
-            {{ conversation }}
             <div
               v-for="(message, index) in conversation.messages"
               :key="message.posted_at"
@@ -62,10 +61,9 @@
                     conversation.messages[index - 1].from !== message.from) ||
                   index === 0
                 "
+                class="time"
               >
-                <div class="time">
-                  {{ formatDate(message.posted_at, "short") }}
-                </div>
+                {{ formatDate(message.posted_at, "short") }}
               </div>
               <Message
                 :message="message"
@@ -174,7 +172,6 @@ export default {
         let scrollElement = document.querySelector("#scroll");
         const { scrollHeight, clientHeight, scrollTop } =
           document.querySelector("#scroll");
-        console.log({ scrollHeight, clientHeight, scrollTop });
         if (
           force ||
           (scrollElement &&
@@ -182,9 +179,6 @@ export default {
               document.querySelector("#scroll").scrollHeight -
                 document.querySelector("#scroll").clientHeight)
         ) {
-          if (!force) {
-            console.log("descente sans forcer");
-          }
           scrollElement.scrollTop =
             document.querySelector("#scroll").scrollHeight;
         }

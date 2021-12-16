@@ -31,7 +31,7 @@ export default new Vuex.Store({
     users(state) {
       return state.users.map((user) => ({
         ...user,
-        //TODO
+        awake: state.usersAvailable.includes(user.username),
       }));
     },
     conversations(state) {
@@ -43,6 +43,15 @@ export default new Vuex.Store({
         users = users.filter((u) => u.username !== state.user.username);
         const title = users.map((user) => user.username).join(", ");
 
+        const awake = conversation.participants.some(
+          (u) => state.usersAvailable.includes(u) && u !== state.user.username
+        );
+
+        const newMessage =
+          conversation.seen[state.user.username] !== -1 &&
+          conversation.seen[state.user.username].message_id !==
+            conversation.messages[conversation.messages.length - 1].id;
+
         return {
           ...conversation,
           conversation_picture:
@@ -52,11 +61,13 @@ export default new Vuex.Store({
                   .picture_url,
           conversation_title:
             conversation.type === "many_to_many" ? "Groupe: " + title : title,
+          awake,
+          new: newMessage,
         };
       });
     },
     conversation(state, getters) {
-      let conv = state.conversations.find(
+      let conv = getters.conversations.find(
         (c) => c.id === state.currentConversationId
       );
 
@@ -78,6 +89,7 @@ export default new Vuex.Store({
         const seen = [];
         const seenKeys = Object.keys(conv.seen);
         const seenValues = Object.values(conv.seen);
+
         seenValues.map((item) => {
           if (item instanceof Object && item.message_id === m.id) {
             seen.push({
@@ -90,6 +102,7 @@ export default new Vuex.Store({
             });
           }
         });
+
         return { ...m, seen };
       });
 
@@ -195,6 +208,9 @@ export default new Vuex.Store({
       state.conversations = state.conversations.filter((conversation) =>
         conversation.participants.includes(state.user.username)
       );
+    },
+    upsertAvailableUsers(state, { usernames }) {
+      Vue.set(state, "usersAvailable", usernames);
     },
   },
   actions: {

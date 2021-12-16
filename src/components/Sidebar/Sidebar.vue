@@ -55,11 +55,12 @@
 
       <div
         v-for="conversation in filteredConversations"
-        :class="
-          selectedConversation === conversation.id
-            ? 'selected conversation'
-            : 'conversation'
-        "
+        :class="{
+          available: conversation.awake,
+          selected: selectedConversation === conversation.id,
+          new: conversation.new,
+        }"
+        class="conversation"
         :key="conversation.id"
         :title="conversation.title"
         @click="openConversation(conversation.id)"
@@ -73,12 +74,25 @@
             <i class="users icon"></i>
           </span>
         </a>
+
         <div class="content">
           <div class="metadata">
             <div class="title">
+              <i
+                v-if="conversation.awake || conversation.new"
+                class="ui small icon circle"
+              ></i>
               {{ conversation.conversation_title }}
             </div>
             <span class="time">{{ formatDate(conversation.updated_at) }}</span>
+          </div>
+          <div class="text">
+            {{
+              conversation.messages.length
+                ? conversation.messages[conversation.messages.length - 1]
+                    .content
+                : "Nouvelle conversation"
+            }}
           </div>
         </div>
       </div>
@@ -95,16 +109,18 @@ export default {
   data() {
     return {
       search: "",
-      selectedConversation: 0,
+      selectedConversation: -1,
       searchInput: "",
     };
   },
   methods: {
     ...mapActions(["deauthenticate", "seeConv"]),
     openCommunity() {
+      this.selectedConversation = -1;
       router.push({ name: "Community" });
     },
     openMessageSearch() {
+      this.selectedConversation = -1;
       router.push({ name: "Search" });
     },
     openConversation(id) {
@@ -113,6 +129,7 @@ export default {
       this.seeConv(id);
     },
     openInfo() {
+      this.selectedConversation = -1;
       router.push({ name: "Informations" });
     },
     formatDate(input) {
