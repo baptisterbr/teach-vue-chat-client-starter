@@ -147,6 +147,7 @@
 
 .bubble {
   margin-left: 42px;
+  max-width: 500px;
 }
 
 img + .bubble {
