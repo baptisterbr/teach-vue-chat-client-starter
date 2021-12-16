@@ -63,7 +63,9 @@
                   index === 0
                 "
               >
-                <div class="time">{{ formatDate(message.posted_at) }}</div>
+                <div class="time">
+                  {{ formatDate(message.posted_at, "short") }}
+                </div>
               </div>
               <Message
                 :message="message"
@@ -75,16 +77,14 @@
                 @clickDelete="delMessage"
                 @clickEdit="setEdit"
               />
-            </div>
-
-            <div class="view">
-              <img
-                title="Vu par Alice à 01:36:39"
-                src="https://source.unsplash.com/mK_sjD0FrXw/100x100"
-              /><img
-                title="Vu par Gael à 01:36:39"
-                src="https://source.unsplash.com/OYH7rc2a3LA/100x100"
-              />
+              <div v-if="message.seen.length" class="view">
+                <img
+                  v-for="item in message.seen"
+                  :key="item.name"
+                  :title="'Vu par ' + item.name + ' à ' + item.time"
+                  :src="item.url"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -139,6 +139,7 @@
 import Group from "@/components/Group/Group";
 import { mapActions, mapGetters } from "vuex";
 import Message from "./Message/Message.vue";
+import formatDate from "@/libs/date.js";
 
 export default {
   name: "Conversation",
@@ -152,10 +153,10 @@ export default {
     };
   },
   mounted() {
-    this.scrollBottom();
+    //this.scrollBottom();
   },
   updated() {
-    this.scrollBottom();
+    //this.scrollBottom();
   },
   computed: {
     ...mapGetters(["user", "conversation"]),
@@ -166,25 +167,28 @@ export default {
       "replyMessage",
       "deleteMessage",
       "editMessage",
+      "seeConv",
     ]),
-    scrollBottom() {
+    scrollBottom(force = false) {
       setTimeout(() => {
         let scrollElement = document.querySelector("#scroll");
-        if (scrollElement) {
+        const { scrollHeight, clientHeight, scrollTop } =
+          document.querySelector("#scroll");
+        console.log({ scrollHeight, clientHeight, scrollTop });
+        if (
+          force ||
+          (scrollElement &&
+            scrollElement.scrollTop ===
+              document.querySelector("#scroll").scrollHeight -
+                document.querySelector("#scroll").clientHeight)
+        ) {
+          if (!force) {
+            console.log("descente sans forcer");
+          }
           scrollElement.scrollTop =
             document.querySelector("#scroll").scrollHeight;
         }
-      }, 0);
-    },
-    formatDate(input) {
-      if (input) {
-        let date = new Date(input);
-
-        return new Intl.DateTimeFormat("fr-FR", { timeStyle: "short" }).format(
-          date
-        );
-      }
-      return input;
+      }, 500);
     },
     getMessageStyle(messages, id) {
       if (
@@ -242,6 +246,7 @@ export default {
         this.messageInput = "";
         this.setReply({});
         this.setEdit({});
+        this.scrollBottom(true);
       }
     },
     setReply(message) {
@@ -258,10 +263,16 @@ export default {
       this.edit = message;
       this.messageInput = message.content;
     },
+    formatDate,
   },
   watch: {
     // eslint-disable-next-line no-unused-vars
     conversation(newConversation, oldConversation) {
+      if (newConversation.messages.length !== oldConversation.messages.length) {
+        this.seeConv({
+          conversation_id: newConversation.id,
+        });
+      }
       this.scrollBottom();
     },
   },

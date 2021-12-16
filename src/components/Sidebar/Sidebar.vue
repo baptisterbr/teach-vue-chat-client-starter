@@ -100,7 +100,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["deauthenticate"]),
+    ...mapActions(["deauthenticate", "seeConv"]),
     openCommunity() {
       router.push({ name: "Community" });
     },
@@ -110,6 +110,7 @@ export default {
     openConversation(id) {
       this.selectConversation(id);
       router.push({ name: "Conversation", params: { id } });
+      this.seeConv(id);
     },
     openInfo() {
       router.push({ name: "Informations" });

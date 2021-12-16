@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import router from "@/router";
+import formatDate from "@/libs/date.js";
 
 Vue.use(Vuex);
 
@@ -73,7 +74,24 @@ export default new Vuex.Store({
 
       const title = users.map((user) => user.username).join(", ");
 
-      const messages = conv.messages.map((m) => m);
+      const messages = conv.messages.map((m) => {
+        const seen = [];
+        const seenKeys = Object.keys(conv.seen);
+        const seenValues = Object.values(conv.seen);
+        seenValues.map((item) => {
+          if (item instanceof Object && item.message_id === m.id) {
+            seen.push({
+              name: seenKeys[seenValues.findIndex((v) => v === item)],
+              time: formatDate(item.time, "medium"),
+              url:
+                participantsUrls[
+                  seenKeys[seenValues.findIndex((v) => v === item)]
+                ],
+            });
+          }
+        });
+        return { ...m, seen };
+      });
 
       return {
         ...conv,
@@ -292,6 +310,19 @@ export default new Vuex.Store({
         message_id,
         content
       );
+    },
+    seeConv({ commit, state }, { conversation_id }) {
+      const conversation = state.conversations.find(
+        (conv) => conv.id === conversation_id
+      );
+      const lastMessage =
+        conversation.messages?.[conversation.messages.length - 1];
+      if (lastMessage) {
+        const promise = Vue.prototype.$client.seeConversation(
+          conversation_id,
+          lastMessage.id
+        );
+      }
     },
   },
 });

@@ -270,3 +270,7 @@ img + .bubble {
   border-radius: 6px;
   font-size: 80%;
 }
+
+#scroll {
+  scroll-behavior: smooth;
+}

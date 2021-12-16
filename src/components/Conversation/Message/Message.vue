@@ -86,6 +86,7 @@ export default {
   },
   methods: {
     getReactionClass(reaction) {
+      console.log(reaction);
       switch (reaction.toUpperCase()) {
         case "HEART":
           return "heart";
