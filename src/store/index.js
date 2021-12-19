@@ -328,11 +328,12 @@ export default new Vuex.Store({
       );
     },
     seeConv({ commit, state }, { conversation_id }) {
+      console.log(conversation_id)
       const conversation = state.conversations.find(
         (conv) => conv.id === conversation_id
       );
-      const lastMessage =
-        conversation.messages?.[conversation.messages.length - 1];
+      console.log(conversation)
+      const lastMessage = conversation.messages.length ? conversation.messages[conversation.messages.length - 1] : undefined;
       if (lastMessage) {
         const promise = Vue.prototype.$client.seeConversation(
           conversation_id,

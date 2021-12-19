@@ -18,7 +18,7 @@
     </div>
     <div class="reacts">
       <i
-        v-for="reaction in message.reactions"
+        v-for="reaction in messageReactions"
         :key="reaction.name"
         :class="'circular ' + getReactionClass(reaction.name) + ' outline icon'"
         >{{ reaction.count }}</i
@@ -70,7 +70,7 @@ export default {
   computed: {
     messageReactions() {
       const reactions = [];
-      Object.values(this.reactions).forEach((reaction) => {
+      Object.values(this.message.reactions).forEach((reaction) => {
         if (reactions.find((r) => r.name === reaction) === undefined) {
           reactions.push({
             name: reaction,

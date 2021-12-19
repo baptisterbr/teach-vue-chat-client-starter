@@ -55,6 +55,7 @@
               v-for="(message, index) in conversation.messages"
               :key="message.posted_at"
             >
+            
               <div
                 v-if="
                   (index > 0 &&
